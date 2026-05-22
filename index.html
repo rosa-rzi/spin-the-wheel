@@ -186,42 +186,45 @@ const NEVER_PICK = [
   }
 
   function spin() {
-    if (spinning) return;
-    if (NAMES.length === 0) {
-      resultBox.innerHTML = '<span class="result-hint" style="color:var(--accent);">No names configured</span>';
-      return;
-    }
-    const eligible = NAMES.map((n, i) => ({ n, i })).filter(x => !NEVER_PICK.includes(x.n));
-    if (eligible.length === 0) {
-      resultBox.innerHTML = '<span class="result-hint" style="color:var(--accent);">No eligible names</span>';
-      return;
-    }
-
-    spinning = true;
-    spinBtn.disabled = true;
-    resultBox.innerHTML = '<span class="result-hint">Spinning…</span>';
-
-    const winner = eligible[Math.floor(Math.random() * eligible.length)];
-    const slice = 360 / NAMES.length;
-    const targetMid = winner.i * slice + slice / 2;
-    const spins = 5 + Math.floor(Math.random() * 3);
-    // Jitter must stay safely inside the slice — cap at ±35% of the half-width
-    const jitter = (Math.random() - 0.5) * slice * 0.7;
-    // Normalize currentRotation so the math is predictable
-    const currentMod = ((currentRotation % 360) + 360) % 360;
-    const desired = (360 - targetMid + jitter + 360) % 360;
-    const delta = ((desired - currentMod) + 360) % 360;
-    const finalRotation = spins * 360 + delta;
-    currentRotation += finalRotation;
-    wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-    setTimeout(() => {
-      spinning = false;
-      spinBtn.disabled = false;
-      resultBox.innerHTML = '';
-    }, 4900);
+  if (spinning) return;
+  if (NAMES.length === 0) {
+    resultBox.innerHTML = '<span class="result-hint" style="color:var(--accent);">No names configured</span>';
+    return;
+  }
+  const eligible = NAMES.map((n, i) => ({ n, i })).filter(x => !NEVER_PICK.includes(x.n));
+  if (eligible.length === 0) {
+    resultBox.innerHTML = '<span class="result-hint" style="color:var(--accent);">No eligible names</span>';
+    return;
   }
 
+  spinning = true;
+  spinBtn.disabled = true;
+  resultBox.innerHTML = '<span class="result-hint">Spinning…</span>';
+
+  const winner = eligible[Math.floor(Math.random() * eligible.length)];
+  const slice = 360 / NAMES.length;
+  const targetMid = winner.i * slice + slice / 2;
+  const spins = 5 + Math.floor(Math.random() * 3);
+  const jitter = (Math.random() - 0.5) * slice * 0.7;
+  const currentMod = ((currentRotation % 360) + 360) % 360;
+  const desired = (360 - targetMid + jitter + 360) % 360;
+  const delta = ((desired - currentMod) + 360) % 360;
+  const finalRotation = spins * 360 + delta;
+  currentRotation += finalRotation;
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    spinning = false;
+    spinBtn.disabled = false;
+    resultBox.innerHTML = '';
+    wheel.removeEventListener('transitionend', finish);
+  };
+  wheel.addEventListener('transitionend', finish, { once: true });
+  setTimeout(finish, 5200);
+}
   spinBtn.addEventListener('click', spin);
   renderWheel();
 })();

@@ -116,7 +116,8 @@ const NAMES = [
 // Names that appear on the wheel but will NEVER be picked.
 // Must match a name from NAMES exactly (case-sensitive).
 const NEVER_PICK = [
-  'Rosa'
+  'Rosa',
+  'Juan'
 ];
 
 // ============================================================
@@ -217,10 +218,7 @@ const NEVER_PICK = [
     setTimeout(() => {
       spinning = false;
       spinBtn.disabled = false;
-      resultBox.innerHTML = `
-        <span class="result-label">Winner</span>
-        <span class="result-name">${escapeHtml(winner.n)}</span>
-      `;
+      resultBox.innerHTML = '';
     }, 4900);
   }
 

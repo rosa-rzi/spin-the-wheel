@@ -94,6 +94,9 @@
 </div>
 
 <script>
+// ============================================================
+// EDIT THESE TWO LISTS TO CONFIGURE YOUR WHEEL
+// ============================================================
 
 // All names that appear on the wheel
 const NAMES = [
@@ -109,11 +112,16 @@ const NAMES = [
   'Irving',
   'Juan'
 ];
-  
+
+// Names that appear on the wheel but will NEVER be picked.
 // Must match a name from NAMES exactly (case-sensitive).
 const NEVER_PICK = [
   'Rosa'
 ];
+
+// ============================================================
+// No need to edit below this line
+// ============================================================
 
 (function(){
   const SLICE_COLORS = [
@@ -196,8 +204,13 @@ const NEVER_PICK = [
     const slice = 360 / NAMES.length;
     const targetMid = winner.i * slice + slice / 2;
     const spins = 5 + Math.floor(Math.random() * 3);
-    const jitter = (Math.random() - 0.5) * (slice * 0.6);
-    const finalRotation = spins * 360 + (360 - targetMid) + jitter;
+    // Jitter must stay safely inside the slice — cap at ±35% of the half-width
+    const jitter = (Math.random() - 0.5) * slice * 0.7;
+    // Normalize currentRotation so the math is predictable
+    const currentMod = ((currentRotation % 360) + 360) % 360;
+    const desired = (360 - targetMid + jitter + 360) % 360;
+    const delta = ((desired - currentMod) + 360) % 360;
+    const finalRotation = spins * 360 + delta;
     currentRotation += finalRotation;
     wheel.style.transform = `rotate(${currentRotation}deg)`;
 
